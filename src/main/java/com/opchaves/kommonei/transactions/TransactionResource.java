@@ -3,6 +3,7 @@ package com.opchaves.kommonei.transactions;
 import java.util.List;
 
 import io.smallrye.mutiny.Uni;
+import jakarta.validation.Valid;
 import jakarta.ws.rs.DELETE;
 import jakarta.ws.rs.GET;
 import jakarta.ws.rs.POST;
@@ -20,7 +21,7 @@ public class TransactionResource {
   }
 
   @POST
-  public Uni<TransactionDTO> create(TransactionDTO input) {
+  public Uni<TransactionDTO> create(@Valid TransactionDTO input) {
     return transactionService.create(input);
   }
 
@@ -40,8 +41,11 @@ public class TransactionResource {
 
   @PUT
   @Path("/{id}")
-  public Uni<TransactionDTO> update(String id, TransactionDTO input) {
-    return transactionService.update(id, input);
+  public Uni<TransactionDTO> update(String id, @Valid TransactionDTO input) {
+    return transactionService.update(id, input)
+        .onItem()
+        .ifNull()
+        .failWith(new WebApplicationException(404));
   }
 
   @DELETE
